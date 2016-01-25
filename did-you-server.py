@@ -33,17 +33,24 @@ class TaskServer(object):
                 if task.name in self._tasks:
                     self._tasks.remove(task_command.task.name)
                 socket.send(b"Ack")
-            elif TaskCommand.Command.Name(task_command.command) == 'LIST':
-                task_list = TaskList()
-                for task_name in self._tasks:
-                    task = task_list.tasks.add()
-                    task.name = task_name
-                socket.send(task_list.SerializeToString())
             else:
                 print("Unknown command:")
             self.print_tasks()
 
+    def publish(self):
+        context = zmq.Context()
+        socket = context.socket(zmq.PUB)
+        socket.bind("tcp://*:5556")
+
+        while True:
+            task_list = TaskList()
+            for task_name in self._tasks:
+                task = task_list.tasks.add()
+                task.name = task_name
+            socket.send(task_list.SerializeToString())
+
 if __name__ == "__main__":
     task_server = TaskServer()
     task_serving = gevent.spawn(task_server.serve)
-    gevent.joinall([task_serving])
+    publishing = gevent.spawn(task_server.publish)
+    gevent.joinall([task_serving, publishing])
