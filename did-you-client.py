@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 import sys
+import capnp
+import taskdef_capnp
 import zmq
 
 
@@ -16,8 +18,13 @@ class TaskCommander(object):
         self._socket = context.socket(zmq.REQ)
         self._socket.connect("tcp://localhost:5555")
 
-    def run_command(self, task_command):
-        self._socket.send(task_command)
+    def run_command(self, command, task_name):
+        task = taskdef_capnp.Task.new_message()
+        task.name = task_name
+        task_message = taskdef_capnp.TaskMessage.new_message()
+        task_message.task = task
+        task_message.command = command
+        self._socket.send(task_message.to_bytes())
         print(self._socket.recv())
 
 if __name__ == "__main__":
@@ -27,4 +34,4 @@ if __name__ == "__main__":
         exit()
     command, task_name = sys.argv[1:]
     task_commander = TaskCommander()
-    task_commander.run_command(':'.join([command, task_name]))
+    task_commander.run_command(command, task_name)

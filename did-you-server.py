@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
+import capnp
+import taskdef_capnp
 import threading
 import zmq
+
 
 _tasks = set()
 
@@ -10,12 +13,13 @@ def serve_rep():
     socket = context.socket(zmq.REP)
     socket.bind("tcp://*:5555")
     while True:
-        message = str(socket.recv(), 'utf-8')
-        command, task_name = message.split(':')
+        message = socket.recv()
+        task_message = taskdef_capnp.TaskMessage.from_bytes(message)
+        command = task_message.command
         if command == 'do':
-            _tasks.add(task_name)
+            _tasks.add(task_message.task.name)
         elif command == 'done':
-            _tasks.remove(task_name)
+            _tasks.remove(task_message.task.name)
         socket.send(b'ack')
 
 
