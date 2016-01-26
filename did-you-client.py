@@ -1,8 +1,13 @@
-#!/usr/bin/env python2
-import gevent
+#!/usr/bin/env python3
 import sys
-import zmq.green as zmq
-from did_you_pb2 import TaskCommand, Task, TaskList
+import zmq
+
+
+class NoSuchCommandException(Exception):
+
+    def __init__(self, command):
+        self.command = command
+
 
 class TaskCommander(object):
 
@@ -11,14 +16,9 @@ class TaskCommander(object):
         self._socket = context.socket(zmq.REQ)
         self._socket.connect("tcp://localhost:5555")
 
-    def run_command(self, command, task_name):
-        if command.upper() not in TaskCommand.Command.keys():
-            return
-        task_command = TaskCommand()
-        task_command.command = TaskCommand.Command.Value(command.upper())
-        task_command.task.name = task_name
-        self._socket.send(task_command.SerializeToString())
-        message = self._socket.recv()
+    def run_command(self, task_command):
+        self._socket.send(task_command)
+        print(self._socket.recv())
 
 if __name__ == "__main__":
     if len(sys.argv) != 3:
@@ -27,5 +27,4 @@ if __name__ == "__main__":
         exit()
     command, task_name = sys.argv[1:]
     task_commander = TaskCommander()
-    request = gevent.spawn(task_commander.run_command, command, task_name)
-    gevent.joinall([request])
+    task_commander.run_command(':'.join([command, task_name]))

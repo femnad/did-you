@@ -1,7 +1,5 @@
-#!/usr/bin/env python2
-import gevent
-import zmq.green as zmq
-from did_you_pb2 import TaskList
+#!/usr/bin/env python3
+import zmq
 
 class TaskSubscriber(object):
 
@@ -12,14 +10,10 @@ class TaskSubscriber(object):
         self._socket.setsockopt(zmq.SUBSCRIBE, b'')
 
     def get_task_list(self):
-        message = self._socket.recv()
-        task_list = TaskList()
-        task_list = task_list.FromString(message)
-        for task in task_list.tasks:
-            print(task.name)
+        message = str(self._socket.recv(), 'utf-8')
+        for task in message.split():
+            print(task)
 
 if __name__ == "__main__":
-    task_subscriber = TaskSubscriber()
-    subscription = gevent.spawn(task_subscriber.get_task_list)
-    gevent.joinall([subscription])
-    
+    ts = TaskSubscriber()
+    ts.get_task_list()
