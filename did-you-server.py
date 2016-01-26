@@ -1,39 +1,51 @@
 #!/usr/bin/env python3
 import capnp
+import redis
 import taskdef_capnp
 import threading
 import zmq
 
 
-_tasks = set()
+class TaskServer(object):
 
+    task_list_key = 'tasklist'
+    respond_port = 5555
+    publish_port = 5556
 
-def serve_rep():
-    context = zmq.Context()
-    socket = context.socket(zmq.REP)
-    socket.bind("tcp://*:5555")
-    while True:
-        message = socket.recv()
-        task_message = taskdef_capnp.TaskMessage.from_bytes(message)
-        command = task_message.command
-        if command == 'do':
-            _tasks.add(task_message.task.name)
-        elif command == 'done':
-            _tasks.remove(task_message.task.name)
-        socket.send(b'ack')
+    def __init__(self):
+        self.redis_client = redis.Redis()
 
+    def respond(self):
+        context = zmq.Context()
+        socket = context.socket(zmq.REP)
+        socket.bind("tcp://*:{}".format(self.respond_port))
+        while True:
+            message = socket.recv()
+            task_message = taskdef_capnp.TaskMessage.from_bytes(message)
+            task_name = task_message.task.name
+            command = task_message.command
+            if command == 'do':
+                self.redis_client.sadd(self.task_list_key, task_name)
+            elif command == 'done':
+                self.redis_client.srem(self.task_list_key, task_name)
+            socket.send(b'ack')
 
-def publish():
-    context = zmq.Context()
-    socket = context.socket(zmq.PUB)
-    socket.bind("tcp://*:5556")
-    while True:
-        task_list = '\n'.join([t for t in _tasks])
-        socket.send(bytes(task_list, 'utf-8'))
-
+    def publish(self):
+        context = zmq.Context()
+        socket = context.socket(zmq.PUB)
+        socket.bind("tcp://*:{}".format(self.publish_port))
+        while True:
+            tasks = self.redis_client.smembers(self.task_list_key)
+            number_of_tasks = len(tasks)
+            tasklist_message = taskdef_capnp.TaskList.new_message()
+            tasklist_message.init('tasks', number_of_tasks)
+            for index, task in enumerate(tasks):
+                tasklist_message.tasks[index] = {'name': task}
+            socket.send(tasklist_message.to_bytes())
 
 if __name__ == "__main__":
-    rep = threading.Thread(target=serve_rep)
-    rep.start()
-    pub = threading.Thread(target=publish)
-    pub.start()
+    task_server = TaskServer()
+    responder = threading.Thread(target=task_server.respond)
+    responder.start()
+    publisher = threading.Thread(target=task_server.publish)
+    publisher.start()
