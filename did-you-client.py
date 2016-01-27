@@ -1,14 +1,8 @@
 #!/usr/bin/env python3
-import sys
 import capnp
+import sys
 import taskdef_capnp
 import zmq
-
-
-class NoSuchCommandException(Exception):
-
-    def __init__(self, command):
-        self.command = command
 
 
 class TaskCommander(object):
@@ -25,7 +19,8 @@ class TaskCommander(object):
         task_message.task = task
         task_message.command = command
         self._socket.send(task_message.to_bytes())
-        print(self._socket.recv())
+        return self._socket.recv()
+
 
 if __name__ == "__main__":
     if len(sys.argv) != 3:
@@ -34,4 +29,8 @@ if __name__ == "__main__":
         exit()
     command, task_name = sys.argv[1:]
     task_commander = TaskCommander()
-    task_commander.run_command(command, task_name)
+    try:
+        response = task_commander.run_command(command, task_name)
+        print("Got response: {}".format(str(response, 'UTF-8')))
+    except AttributeError:
+        print("No such command: {}".format(command))
