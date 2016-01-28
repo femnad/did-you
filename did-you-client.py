@@ -4,13 +4,18 @@ import sys
 import taskdef_capnp
 import zmq
 
+from did_you_config import DidYouConfig
+
 
 class TaskCommander(object):
 
     def __init__(self):
         context = zmq.Context()
         self._socket = context.socket(zmq.REQ)
-        self._socket.connect("tcp://localhost:5555")
+        configurator = DidYouConfig()
+        host = configurator.host
+        port = configurator.request_port
+        self._socket.connect("tcp://{}:{}".format(host, port))
 
     def run_command(self, command, task_name):
         task = taskdef_capnp.Task.new_message()

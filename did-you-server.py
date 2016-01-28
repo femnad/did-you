@@ -5,15 +5,18 @@ import taskdef_capnp
 import threading
 import zmq
 
+from did_you_config import DidYouConfig
+
 
 class TaskServer(object):
 
     task_list_key = 'tasklist'
-    respond_port = 5555
-    publish_port = 5556
 
     def __init__(self):
         self.redis_client = redis.Redis()
+        configurator = DidYouConfig()
+        self.respond_port = configurator.request_port
+        self.publish_port = configurator.subscription_port
 
     def respond(self):
         context = zmq.Context()
