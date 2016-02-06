@@ -1,4 +1,8 @@
-[Default]
-Host = 127.0.0.1
-RequestPort = 5555
-SubscriptionPort = 5556
+[default]
+host = <host>
+request_port = <port>
+subscription_port = <port>
+
+[redis]
+host = <ip>
+port = <port>

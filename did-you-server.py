@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
-import capnp
+import msgpack
 import redis
-import taskdef_capnp
 import threading
 import zmq
 
@@ -13,8 +12,9 @@ class TaskServer(object):
     task_list_key = 'tasklist'
 
     def __init__(self):
-        self.redis_client = redis.Redis()
         configurator = DidYouConfig()
+        self.redis_client = redis.Redis(
+            host=configurator.redis_host, port=configurator.redist_port)
         self.respond_port = configurator.request_port
         self.publish_port = configurator.subscription_port
 
@@ -24,14 +24,20 @@ class TaskServer(object):
         socket.bind("tcp://*:{}".format(self.respond_port))
         while True:
             message = socket.recv()
-            task_message = taskdef_capnp.TaskMessage.from_bytes(message)
-            task_name = task_message.task.name
-            command = task_message.command
-            if command == 'do':
-                self.redis_client.sadd(self.task_list_key, task_name)
-            elif command == 'done':
-                self.redis_client.srem(self.task_list_key, task_name)
-            socket.send(b'ack')
+            task_message = msgpack.unpackb(message)
+            task_name = task_message[b'name']
+            command = task_message[b'command']
+            response = None
+            if command == b'do':
+                response = self.redis_client.sadd(self.task_list_key, task_name)
+            elif command == b'done':
+                response = self.redis_client.srem(self.task_list_key, task_name)
+            else:
+                response = b'Nack'
+            if response == 1:
+                socket.send(b'Ack')
+            else:
+                socket.send(b'Nack')
 
     def publish(self):
         context = zmq.Context()
@@ -39,12 +45,8 @@ class TaskServer(object):
         socket.bind("tcp://*:{}".format(self.publish_port))
         while True:
             tasks = self.redis_client.smembers(self.task_list_key)
-            number_of_tasks = len(tasks)
-            tasklist_message = taskdef_capnp.TaskList.new_message()
-            tasklist_message.init('tasks', number_of_tasks)
-            for index, task in enumerate(tasks):
-                tasklist_message.tasks[index] = {'name': task}
-            socket.send(tasklist_message.to_bytes())
+            task_list = list(tasks)
+            socket.send(msgpack.packb(task_list))
 
 if __name__ == "__main__":
     task_server = TaskServer()

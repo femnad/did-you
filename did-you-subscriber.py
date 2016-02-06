@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-import capnp
-import taskdef_capnp
+import msgpack
 import zmq
 
 from did_you_config import DidYouConfig
@@ -18,9 +17,9 @@ class TaskSubscriber(object):
         self._socket.setsockopt(zmq.SUBSCRIBE, b'')
 
     def get_task_list(self):
-        task_list = taskdef_capnp.TaskList.from_bytes(self._socket.recv())
-        for task in task_list.tasks:
-            print(task.name)
+        task_list = msgpack.unpackb(self._socket.recv())
+        for task in task_list:
+            print(task)
 
 if __name__ == "__main__":
     task_subscriber = TaskSubscriber()

@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
-import capnp
+import msgpack
 import sys
-import taskdef_capnp
 import zmq
 
 from did_you_config import DidYouConfig
@@ -18,12 +17,8 @@ class TaskCommander(object):
         self._socket.connect("tcp://{}:{}".format(host, port))
 
     def run_command(self, command, task_name):
-        task = taskdef_capnp.Task.new_message()
-        task.name = task_name
-        task_message = taskdef_capnp.TaskMessage.new_message()
-        task_message.task = task
-        task_message.command = command
-        self._socket.send(task_message.to_bytes())
+        task_message = {"name": task_name, "command": command}
+        self._socket.send(msgpack.packb(task_message))
         return self._socket.recv()
 
 
