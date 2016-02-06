@@ -6,3 +6,6 @@ subscription_port = <port>
 [redis]
 host = <ip>
 port = <port>
+
+[task_checker]
+sleep_period = <sleep_period>
