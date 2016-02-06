@@ -37,9 +37,12 @@ class TaskSubscriber(object):
 
     def get_task_list(self):
         task_list = msgpack.unpackb(self._socket.recv())
-        task_list_message = ["{}: {}".format(index, str(task, 'UTF-8'))
-                             for index, task in enumerate(task_list, 1)]
-        notify_send("TODO:", "\n".join(task_list_message))
+        if len(task_list) == 0:
+            notify_send("Lazy Someday!", "No Items in the List")
+        else:
+            task_list_message = ["{}: {}".format(index, str(task, 'UTF-8'))
+                                 for index, task in enumerate(task_list, 1)]
+            notify_send("TODO:", "\n".join(task_list_message))
 
 if __name__ == "__main__":
     if not 2 <= len(sys.argv) <= 3:
