@@ -3,8 +3,6 @@ import msgpack
 import sys
 import zmq
 
-from sh import notify_send
-
 from did_you_config import DidYouConfig
 from task_command import TaskCommand
 
@@ -37,6 +35,7 @@ class TaskSubscriber(object):
 
     def get_task_list(self):
         task_list = msgpack.unpackb(self._socket.recv())
+        return task_list
         if len(task_list) == 0:
             notify_send("Lazy Someday!", "No Items in the List")
         else:
@@ -47,18 +46,10 @@ class TaskSubscriber(object):
 if __name__ == "__main__":
     if not 2 <= len(sys.argv) <= 3:
         executable_name = sys.argv[0]
-        print("Usage {} <command> [<task-name>]".format(executable_name))
+        print("Usage {} <command> <task-name>".format(executable_name))
         exit()
-    command = sys.argv[1]
-    if command == 'list':
-        task_subscriber = TaskSubscriber()
-        task_subscriber.get_task_list()
-    else:
-        task_name = sys.argv[2]
-        task_commander = TaskCommander()
-        try:
-            response = task_commander.run_command(
-                TaskCommand[command], task_name)
-            print("Got response: {}".format(str(response, 'UTF-8')))
-        except AttributeError:
-            print("No such command: {}".format(command))
+    command, task_name = sys.argv[:1]
+    task_commander = TaskCommander()
+    response = task_commander.run_command(
+        TaskCommand[command], task_name)
+    print("Got response: {}".format(str(response, 'UTF-8')))

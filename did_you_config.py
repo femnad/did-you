@@ -8,6 +8,7 @@ class DidYouConfig(object):
         config.read('did_you.conf')
         self._default_section = config['default']
         self._redis_section = config['redis']
+        self._task_checker_section = config['task_checker']
 
     @property
     def request_port(self):
@@ -26,5 +27,9 @@ class DidYouConfig(object):
         return self._redis_section['host']
 
     @property
-    def redist_port(self):
+    def redis_port(self):
         return self._redis_section['port']
+
+    @property
+    def sleep_period(self):
+        return self._task_checker_section['sleep_period']

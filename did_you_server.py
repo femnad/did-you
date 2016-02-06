@@ -15,7 +15,7 @@ class TaskServer(object):
     def __init__(self):
         configurator = DidYouConfig()
         self.redis_client = redis.Redis(
-            host=configurator.redis_host, port=configurator.redist_port)
+            host=configurator.redis_host, port=configurator.redis_port)
         self.respond_port = configurator.request_port
         self.publish_port = configurator.subscription_port
 
