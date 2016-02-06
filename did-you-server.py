@@ -5,6 +5,7 @@ import threading
 import zmq
 
 from did_you_config import DidYouConfig
+from task_command import TaskCommand
 
 
 class TaskServer(object):
@@ -26,11 +27,11 @@ class TaskServer(object):
             message = socket.recv()
             task_message = msgpack.unpackb(message)
             task_name = task_message[b'name']
-            command = task_message[b'command']
+            command = TaskCommand(task_message[b'command'])
             response = None
-            if command == b'do':
+            if command == TaskCommand.do:
                 response = self.redis_client.sadd(self.task_list_key, task_name)
-            elif command == b'done':
+            elif command == TaskCommand.done:
                 response = self.redis_client.srem(self.task_list_key, task_name)
             else:
                 response = b'Nack'
