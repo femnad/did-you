@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+# Package: did_you.server
 import msgpack
 import redis
 import threading
@@ -48,10 +48,3 @@ class TaskServer(object):
             tasks = self.redis_client.smembers(self.task_list_key)
             task_list = list(tasks)
             socket.send(msgpack.packb(task_list))
-
-if __name__ == "__main__":
-    task_server = TaskServer()
-    responder = threading.Thread(target=task_server.respond)
-    responder.start()
-    publisher = threading.Thread(target=task_server.publish)
-    publisher.start()
