@@ -5,7 +5,7 @@ import threading
 import zmq
 
 from did_you_config import DidYouConfig
-from task_command import TaskCommand
+from did_you import TaskCommand
 
 
 class TaskServer(object):
