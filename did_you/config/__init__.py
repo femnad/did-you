@@ -6,7 +6,8 @@ from configparser import ConfigParser
 
 class DidYouConfig(object):
 
-    default_values = {'default': {'request_port': 5555, 'subscription_port': 5556},
+    default_values = {'default': {'request_port': '5555',
+                                  'subscription_port': '5556'},
                       'redis': {'host': '127.0.0.1', 'port': '6379'}}
 
     def __init__(self, configuration_file):
@@ -22,7 +23,7 @@ class DidYouConfig(object):
         for section, options in self.default_values.items():
             config.add_section(section)
             for key, value in options.items():
-                config.set(section, key, str(value))
+                config.set(section, key, value)
         with open(filename, 'w') as config_file:
             config.write(config_file)
 
