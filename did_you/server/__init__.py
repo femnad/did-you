@@ -1,19 +1,17 @@
 # Package: did_you.server
 import msgpack
 import redis
-import threading
 import zmq
 
-from did_you_config import DidYouConfig
 from did_you import TaskCommand
+from did_you.config import DidYouConfig
 
 
 class TaskServer(object):
 
     task_list_key = 'tasklist'
 
-    def __init__(self):
-        configurator = DidYouConfig()
+    def __init__(self, configurator):
         self.redis_client = redis.Redis(
             host=configurator.redis_host, port=configurator.redis_port)
         self.respond_port = configurator.request_port
