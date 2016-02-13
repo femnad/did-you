@@ -1,2 +1,2 @@
 #!/bin/sh
-did_you_server "$@" &
+/usr/local/bin/did_you_server "$@" &

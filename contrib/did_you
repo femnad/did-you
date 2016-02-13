@@ -1,0 +1,20 @@
+#!/bin/sh
+
+# PROVIDE: did_you
+
+. /etc/rc.subr
+
+name="did_you"
+rcvar="${name}_enable"
+
+command="/usr/local/bin/did_you_daemon"
+pidfile="/var/run/$name.pid"
+
+load_rc_config "$name"
+: ${did_you_enable="NO"}
+: ${did_you_config="/usr/local/etc/$name.conf"}
+
+command_args="--config_file ${did_you_config} --pid_file ${pidfile}"
+required_files="${did_you_config}"
+
+run_rc_command "$1"
