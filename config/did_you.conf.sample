@@ -1,7 +1,7 @@
 [default]
-request_port = <port>
-subscription_port = <port>
+request_port = 5555
+subscription_port = 5556
 
 [redis]
-host = <ip>
-port = <port>
+host = 127.0.0.1
+port = 6379
