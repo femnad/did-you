@@ -1,0 +1,36 @@
+CHANGES
+=======
+
+* Unignore Configuration File
+* Correctly Pass Cmd Args
+* Copy the Sample Config To /usr/local/etc
+* Allow a Config File to be Specified on the Command Line
+* Use Strings as Default Values
+* Remove Unused File
+* Remove Empty File
+* Remove Client Scripts
+* Add requirements.txt File
+* Create Default Config File If It Does Not Exist
+* Change Package for Server
+* More Sensible Packaging
+* Remove Dead Code
+* Update Configuration Template
+* Fix Command Line Argument Processing
+* File Name Changes, Add Task Checker Script
+* Correctly Notify About Empty Todo List
+* Remove Subscriber Client
+* Use notify-send for, well, Notifying
+* Use Enum on the Server too
+* Use Enum For Represting Task Commands
+* Remove Cap'n Proto Schema
+* Switch to MessagePack for Serialization
+* Use Configuration File for Some Settings
+* Handle Unknown Command Input
+* Use Redis for Persistence
+* Well, At Least it Works Now*
+* Back to Square -1
+* Subscribe on Everything
+* Add Subscriber
+* Add Task Publisher
+* Use gevent for Spawning Req and Rep
+* Maximum Unviable Product?
