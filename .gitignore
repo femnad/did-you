@@ -1,5 +1,4 @@
 *.pyc
-did_you.conf
 build
 dist
 *.egg-info
