@@ -5,4 +5,4 @@ def cmdline_args(decoratee):
     if len(arguments) == 0:
         decoratee(None)
     else:
-        decoratee(arguments)
+        decoratee(*arguments)
