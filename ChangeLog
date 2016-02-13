@@ -1,6 +1,7 @@
 CHANGES
 =======
 
+* You Call That a Daemon
 * Parse Cmdargs in a Non-DRY Manner
 * Switch to Pbr
 * Unignore Configuration File
