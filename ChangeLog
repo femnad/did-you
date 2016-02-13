@@ -1,6 +1,7 @@
 CHANGES
 =======
 
+* Parse Cmdargs in a Non-DRY Manner
 * Switch to Pbr
 * Unignore Configuration File
 * Correctly Pass Cmd Args

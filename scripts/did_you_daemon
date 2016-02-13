@@ -1,0 +1,2 @@
+#!/bin/sh
+did_you_server "$@" &
